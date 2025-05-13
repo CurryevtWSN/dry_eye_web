@@ -29,12 +29,15 @@ Refractive_error_time = st.sidebar.slider("Refractive error time (year)",
                                           0.00,
                                           80.00
                                           ,value= 10.00, step=1.00)
+Bilateral_mean_IOP = st.sidebar.slider("Bilateral mean IOP (mmHg)",
+                                       0.0,50.0, value = 18.0, step = 1.0)
 Conjunctivitis = st.sidebar.selectbox("Conjunctivitis", ('No','Yes'), index = 1)
 Cataract = st.sidebar.selectbox("Cataract", ('No','Yes'), index = 1)
 Glaucoma = st.sidebar.selectbox("Glaucoma", ('No','Yes'), index = 1)
 Strabismus = st.sidebar.selectbox("Strabismus", ('No','Yes'), index = 1)
 History_of_ocular_surgery = st.sidebar.selectbox("History_of_ocular_surgery", ('No','Yes'), index = 1)
-History_of_allergy = st.sidebar.selectbox("History_of_allergy", ('No','Yes'), index = 1)
+Hypertension = st.sidebar.selectbox("Hypertension", ('No','Yes'), index = 1)
+
 
 #分割符号
 st.sidebar.markdown('#  ')
@@ -54,7 +57,7 @@ Cataract =map[Cataract]
 Glaucoma =map[Glaucoma]
 Strabismus =map[Strabismus]
 History_of_ocular_surgery =map[History_of_ocular_surgery]
-History_of_allergy =map[History_of_allergy]
+Hypertension =map[Hypertension]
 
 
 # 数据读取，特征标注
@@ -68,10 +71,10 @@ target = ["Dry_eye"]
 y = np.array(hp_train[target])
 sp = 0.5
 
-is_t = (xgb_model.predict_proba(np.array([[Refractive_error_time,Age,Conjunctivitis,Sex,Cataract,
-                                           Glaucoma,History_of_ocular_surgery,History_of_allergy,Strabismus]]))[0][1])> sp
-prob = (xgb_model.predict_proba(np.array([[Refractive_error_time,Age,Conjunctivitis,Sex,Cataract,
-                                           Glaucoma,History_of_ocular_surgery,History_of_allergy,Strabismus]]))[0][1])*1000//1/10
+is_t = (xgb_model.predict_proba(np.array([[Refractive_error_time,Age,Bilateral_mean_IOP,Conjunctivitis,Sex,Cataract,
+                                           Glaucoma,History_of_ocular_surgery,Strabismus,Hypertension]]))[0][1])> sp
+prob = (xgb_model.predict_proba(np.array([[Refractive_error_time,Age,Bilateral_mean_IOP,Conjunctivitis,Sex,Cataract,
+                                           Glaucoma,History_of_ocular_surgery,Strabismus,Hypertension]]))[0][1])*1000//1/10
     
 
 if is_t:
@@ -84,12 +87,19 @@ if st.button('Predict'):
         st.balloons()
     st.markdown('## Probability of High Risk Dry Eye Group:  '+str(prob)+'%')
     #%%cbind users data
-    features = ["Refractive_error_time", "Age", "Conjunctivitis", "Sex",
-                "Cataract", "Glaucoma", "History_of_ocular_surgery",
-                "History_of_allergy", "Strabismus"]
+    features = ["Refractive_error_time",
+                "Age",
+                'Bilateral_mean_IOP',
+                "Conjunctivitis",
+                "Sex",
+                "Cataract",
+                "Glaucoma",
+                "History_of_ocular_surgery",
+                "Hypertension",
+                "Strabismus"]
     col_names = features
-    X_last = pd.DataFrame(np.array([[Refractive_error_time,Age,Conjunctivitis,Sex,Cataract,
-                                               Glaucoma,History_of_ocular_surgery,History_of_allergy,Strabismus]]))
+    X_last = pd.DataFrame(np.array([[Refractive_error_time,Age,Bilateral_mean_IOP,Conjunctivitis,Sex,Cataract,
+                                               Glaucoma,History_of_ocular_surgery,Strabismus,Hypertension]]))
     X_last.columns = col_names
     X_raw = hp_train[features]
     X = pd.concat([X_raw,X_last],ignore_index=True)
