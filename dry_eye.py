@@ -35,7 +35,7 @@ Conjunctivitis = st.sidebar.selectbox("Conjunctivitis", ('No','Yes'), index = 1)
 Cataract = st.sidebar.selectbox("Cataract", ('No','Yes'), index = 1)
 Glaucoma = st.sidebar.selectbox("Glaucoma", ('No','Yes'), index = 1)
 Strabismus = st.sidebar.selectbox("Strabismus", ('No','Yes'), index = 1)
-History_of_ocular_surgery = st.sidebar.selectbox("History_of_ocular_surgery", ('No','Yes'), index = 1)
+History_of_ocular_surgery = st.sidebar.selectbox("History of ocular surgery", ('No','Yes'), index = 1)
 Hypertension = st.sidebar.selectbox("Hypertension", ('No','Yes'), index = 1)
 
 
@@ -62,7 +62,7 @@ Hypertension =map[Hypertension]
 
 # 数据读取，特征标注
 #%%load model
-xgb_model = joblib.load('xgb_model.pkl')
+TabPFN_model = joblib.load('TabPFN_model.pkl')
 
 #%%load data
 hp_train = pd.read_csv('balanced_data_5000.csv')
@@ -71,9 +71,9 @@ target = ["Dry_eye"]
 y = np.array(hp_train[target])
 sp = 0.5
 
-is_t = (xgb_model.predict_proba(np.array([[Refractive_error_time,Age,Bilateral_mean_IOP,Conjunctivitis,Sex,Cataract,
+is_t = (TabPFN_model.predict_proba(np.array([[Refractive_error_time,Age,Bilateral_mean_IOP,Conjunctivitis,Sex,Cataract,
                                            Glaucoma,History_of_ocular_surgery,Strabismus,Hypertension]]))[0][1])> sp
-prob = (xgb_model.predict_proba(np.array([[Refractive_error_time,Age,Bilateral_mean_IOP,Conjunctivitis,Sex,Cataract,
+prob = (TabPFN_model.predict_proba(np.array([[Refractive_error_time,Age,Bilateral_mean_IOP,Conjunctivitis,Sex,Cataract,
                                            Glaucoma,History_of_ocular_surgery,Strabismus,Hypertension]]))[0][1])*1000//1/10
     
 
@@ -110,14 +110,14 @@ if st.button('Predict'):
     y_raw = (np.array(hp_train[target]))
     y = np.append(y_raw,y_last)
     y = pd.DataFrame(y)
-    model = xgb_model
+    model = TabPFN_model
     #%%calculate shap values
     sns.set()
     explainer = shap.Explainer(model, X)
     shap_values = explainer.shap_values(X)
     a = len(X)-1
     #%%SHAP Force logit plot
-    st.subheader('SHAP Force logit plot of XGB model')
+    st.subheader('SHAP Force logit plot of TabPFN model')
     fig, ax = plt.subplots(figsize=(12, 6))
     force_plot = shap.force_plot(explainer.expected_value,
                     shap_values[a, :], 
@@ -128,19 +128,20 @@ if st.button('Predict'):
                     out_names = "Output value")
     st.pyplot(force_plot)
     #%%SHAP Water PLOT
-    st.subheader('SHAP Water plot of XGB model')
+    st.subheader('SHAP Water plot of TabPFN model')
     shap_values = explainer(X) # 传入特征矩阵X，计算SHAP值
     fig, ax = plt.subplots(figsize=(8, 8))
     waterfall_plot = shap.plots.waterfall(shap_values[a,:])
     st.pyplot(waterfall_plot)
     #%%ConfusionMatrix 
-    st.subheader('Confusion Matrix of XGB model')
-    xgb_prob = xgb_model.predict(X)
-    cm = confusion_matrix(y, xgb_prob)
+    st.subheader('Confusion Matrix of TabPFN model')
+    TabPFN_prob = TabPFN_model.predict(X)
+    cm = confusion_matrix(y, TabPFN_prob)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Low risk', 'High risk'])
     sns.set_style("white")
     disp.plot(cmap='RdPu')
-    plt.title("Confusion Matrix of XGB model")
+    plt.title("Confusion Matrix of TabPFN model")
     disp1 = plt.show()
     st.pyplot(disp1)
+
 
