@@ -16,8 +16,8 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 #%%set title
-st.set_page_config(page_title='A Clinical Decision-Making Model for Dry Eye in Patients with Refractive Errors')
-st.title('A Clinical Decision-Making Model for Dry Eye in Patients with Refractive Errors')
+st.set_page_config(page_title='A Table-Driven Machine Learning Clinical Decision System for Patients with Refractive Errors and Dry Eye')
+st.title('A Table-Driven Machine Learning Clinical Decision System for Patients with Refractive Errors and Dry Eye')
 
 #%%set varixgbles selection
 st.sidebar.markdown('## Varixgbles')
@@ -143,5 +143,6 @@ if st.button('Predict'):
     plt.title("Confusion Matrix of TabPFN model")
     disp1 = plt.show()
     st.pyplot(disp1)
+
 
 
